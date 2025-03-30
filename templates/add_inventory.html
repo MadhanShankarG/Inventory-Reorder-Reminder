@@ -1,0 +1,801 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Inventory - Cement Store Inventory System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f1f5f9;
+            --accent-color: #34a853;
+            --warning-color: #fbbc05;
+            --danger-color: #ea4335;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --border-color: #dadce0;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .menu-item span {
+            display: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .back-btn {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background-color: #dde5ed;
+        }
+
+        .back-btn i {
+            margin-right: 8px;
+        }
+
+        /* Form Container */
+        .form-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            color: var(--text-color);
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+            outline: none;
+        }
+
+        .error-input {
+            border-color: var(--danger-color) !important;
+        }
+
+        .error-message {
+            color: var(--danger-color);
+            font-size: 0.8rem;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .form-actions {
+            margin-top: 30px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-cancel {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-cancel:hover {
+            background-color: #dde5ed;
+        }
+
+        .btn-submit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-submit:hover {
+            background-color: #1565c0;
+        }
+
+        /* Instruction Card */
+        .instruction-card {
+            background-color: rgba(26, 115, 232, 0.05);
+            border-left: 4px solid var(--primary-color);
+            padding: 15px;
+            margin-bottom: 25px;
+            border-radius: 4px;
+        }
+
+        .instruction-card p {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        /* Animation for Submit Button */
+        .btn-submit {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-submit::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .btn-submit:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .header {
+                flex-wrap: wrap;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .form-actions {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* Mobile Menu Toggle */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 1.5rem;
+            cursor: pointer;
+            margin-right: 15px;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .header {
+                padding-left: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Cement Track</h2>
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventory.html" class="menu-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory List</span>
+            </a>
+            <a href="add_inventory.html" class="menu-item active">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Inventory</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-layer-group"></i>
+                <span>View Stock</span>
+            </a>
+            <a href="reminders.html" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Reminders</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header Section -->
+        <div class="header">
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+            <h1 class="page-title">Add New Inventory</h1>
+            <div class="header-actions">
+                <button class="back-btn" id="backToInventory">
+                    <i class="fas fa-arrow-left"></i> Back to Inventory
+                </button>
+            </div>
+        </div>
+
+        <!-- Instruction Card -->
+        <div class="instruction-card">
+            <p><i class="fas fa-info-circle"></i> Fill in all required fields to add a new inventory item. Items marked with * are mandatory.</p>
+        </div>
+
+        <!-- Add Inventory Form -->
+        <div class="form-container">
+            <h2 class="form-title">Item Information</h2>
+            <form id="addInventoryForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="itemName">Item Name *</label>
+                        <select id="itemName" class="form-control" required>
+                            <option value="">Select an item</option>
+                            <option value="Cement">Cement</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Sand">Sand</option>
+                            <option value="Bricks">Bricks</option>
+                            <option value="Pipes">Pipes</option>
+                            <option value="Aggregate">Aggregate</option>
+                            <option value="Plywood">Plywood</option>
+                            <option value="Tools">Tools</option>
+                        </select>
+                        <span class="error-message" id="itemNameError">Please select an item</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="category">Category *</label>
+                        <select id="category" class="form-control" required>
+                            <option value="">Select a category</option>
+                            <option value="Cement">Cement</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Sand">Sand</option>
+                            <option value="Bricks">Bricks</option>
+                            <option value="Pipes">Pipes</option>
+                            <option value="Tools">Tools</option>
+                            <option value="Wood">Wood</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="error-message" id="categoryError">Please select a category</span>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="quantity">Quantity *</label>
+                        <input type="number" id="quantity" class="form-control" min="1" required>
+                        <span class="error-message" id="quantityError">Quantity must be a positive number</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="reorderLevel">Reorder Level *</label>
+                        <input type="number" id="reorderLevel" class="form-control" min="1" required>
+                        <span class="error-message" id="reorderLevelError">Reorder level must be a positive number</span>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="supplierName">Supplier Name *</label>
+                        <input type="text" id="supplierName" class="form-control" required>
+                        <span class="error-message" id="supplierNameError">Please enter a supplier name</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="purchaseDate">Date of Purchase *</label>
+                        <input type="date" id="purchaseDate" class="form-control" required>
+                        <span class="error-message" id="purchaseDateError">Date cannot be in the future</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" class="form-control" rows="3" placeholder="Enter any additional information about this item..."></textarea>
+                </div>
+
+                <div class="form-actions">
+                    <button type="button" class="btn btn-cancel" id="cancelBtn">
+                        <i class="fas fa-times"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn btn-submit">
+                        <i class="fas fa-save"></i> Add Inventory Item
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="inventory.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sidebar Toggle
+            const toggleSidebar = document.getElementById('toggleSidebar');
+            const sidebar = document.getElementById('sidebar');
+            const mainContent = document.getElementById('mainContent');
+            const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+            
+            toggleSidebar.addEventListener('click', function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('expanded');
+                
+                // Change icon based on sidebar state
+                const icon = toggleSidebar.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-angle-double-left');
+                    icon.classList.add('fa-angle-double-right');
+                } else {
+                    icon.classList.remove('fa-angle-double-right');
+                    icon.classList.add('fa-angle-double-left');
+                }
+            });
+            
+            // Mobile menu toggle
+            mobileMenuToggle.addEventListener('click', function() {
+                sidebar.classList.toggle('mobile-show');
+            });
+            
+            // Back and Cancel buttons
+            const backToInventoryBtn = document.getElementById('backToInventory');
+            const cancelBtn = document.getElementById('cancelBtn');
+            
+            function navigateToInventory() {
+                window.location.href = 'inventory.html';
+            }
+            
+            backToInventoryBtn.addEventListener('click', navigateToInventory);
+            cancelBtn.addEventListener('click', navigateToInventory);
+            
+            // Set max date for purchase date to today
+            const purchaseDate = document.getElementById('purchaseDate');
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            let mm = today.getMonth() + 1; // Months are 0-based
+            let dd = today.getDate();
+            
+            // Add leading zero if needed
+            if (dd < 10) dd = '0' + dd;
+            if (mm < 10) mm = '0' + mm;
+            
+            const formattedToday = yyyy + '-' + mm + '-' + dd;
+            purchaseDate.setAttribute('max', formattedToday);
+            
+            // inventory.js - JavaScript for Cement Store Inventory Management System
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Form elements
+    const addInventoryForm = document.getElementById('addInventoryForm');
+    const itemNameField = document.getElementById('itemName');
+    const categoryField = document.getElementById('category');
+    const quantityField = document.getElementById('quantity');
+    const reorderLevelField = document.getElementById('reorderLevel');
+    const supplierNameField = document.getElementById('supplierName');
+    const purchaseDateField = document.getElementById('purchaseDate');
+    const notesField = document.getElementById('notes');
+
+    // Error message elements
+    const itemNameError = document.getElementById('itemNameError');
+    const categoryError = document.getElementById('categoryError');
+    const quantityError = document.getElementById('quantityError');
+    const reorderLevelError = document.getElementById('reorderLevelError');
+    const supplierNameError = document.getElementById('supplierNameError');
+    const purchaseDateError = document.getElementById('purchaseDateError');
+
+    // Initialize inventory data from localStorage if it exists
+    let inventoryItems = JSON.parse(localStorage.getItem('inventoryItems')) || [];
+
+    // Form submission handler
+    addInventoryForm.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        // Reset error messages
+        resetErrorMessages();
+        
+        // Validate form
+        if (validateForm()) {
+            // Create new inventory item object
+            const newItem = {
+                id: generateUniqueId(),
+                itemName: itemNameField.value,
+                category: categoryField.value,
+                quantity: parseInt(quantityField.value),
+                reorderLevel: parseInt(reorderLevelField.value),
+                supplierName: supplierNameField.value,
+                purchaseDate: purchaseDateField.value,
+                notes: notesField.value,
+                dateAdded: new Date().toISOString()
+            };
+            
+            // Add to inventory array
+            inventoryItems.push(newItem);
+            
+            // Save to localStorage
+            localStorage.setItem('inventoryItems', JSON.stringify(inventoryItems));
+            
+            // Show success message
+            showSuccessMessage('Inventory item added successfully!');
+            
+            // Redirect to inventory.html after a brief delay
+            setTimeout(function() {
+                window.location.href = 'inventory.html';
+            }, 1500);
+        }
+    });
+
+    // Form validation function
+    function validateForm() {
+        let isValid = true;
+        
+        // Validate Item Name
+        if (!itemNameField.value) {
+            showError(itemNameField, itemNameError, 'Please select an item');
+            isValid = false;
+        }
+        
+        // Validate Category
+        if (!categoryField.value) {
+            showError(categoryField, categoryError, 'Please select a category');
+            isValid = false;
+        }
+        
+        // Validate Quantity
+        if (!quantityField.value || parseInt(quantityField.value) <= 0) {
+            showError(quantityField, quantityError, 'Quantity must be a positive number');
+            isValid = false;
+        }
+        
+        // Validate Reorder Level
+        if (!reorderLevelField.value || parseInt(reorderLevelField.value) <= 0) {
+            showError(reorderLevelField, reorderLevelError, 'Reorder level must be a positive number');
+            isValid = false;
+        }
+        
+        // Validate Supplier Name
+        if (!supplierNameField.value.trim()) {
+            showError(supplierNameField, supplierNameError, 'Please enter a supplier name');
+            isValid = false;
+        }
+        
+        // Validate Purchase Date
+        if (!purchaseDateField.value) {
+            showError(purchaseDateField, purchaseDateError, 'Please select a purchase date');
+            isValid = false;
+        } else {
+            // Check if date is in the future
+            const selectedDate = new Date(purchaseDateField.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // Reset time to 00:00:00
+            
+            if (selectedDate > today) {
+                showError(purchaseDateField, purchaseDateError, 'Date cannot be in the future');
+                isValid = false;
+            }
+        }
+        
+        return isValid;
+    }
+
+    // Helper function to show error message
+    function showError(inputElement, errorElement, message) {
+        inputElement.classList.add('error-input');
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+
+    // Helper function to reset all error messages
+    function resetErrorMessages() {
+        const allInputs = addInventoryForm.querySelectorAll('.form-control');
+        const allErrors = addInventoryForm.querySelectorAll('.error-message');
+        
+        allInputs.forEach(input => {
+            input.classList.remove('error-input');
+        });
+        
+        allErrors.forEach(error => {
+            error.style.display = 'none';
+        });
+    }
+
+    // Helper function to generate unique ID
+    function generateUniqueId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // Helper function to show success message
+    function showSuccessMessage(message) {
+        // Create a success message element
+        const successMessage = document.createElement('div');
+        successMessage.className = 'instruction-card';
+        successMessage.style.backgroundColor = 'rgba(52, 168, 83, 0.1)';
+        successMessage.style.borderLeftColor = '#34a853';
+        successMessage.innerHTML = `<p><i class="fas fa-check-circle"></i> ${message}</p>`;
+        
+        // Insert before the form container
+        const formContainer = document.querySelector('.form-container');
+        formContainer.parentNode.insertBefore(successMessage, formContainer);
+        
+        // Scroll to top to show the message
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Sync category with item name if they match
+    itemNameField.addEventListener('change', function() {
+        // If the selected item name exists as a category option, select it
+        const itemName = itemNameField.value;
+        const categoryOptions = Array.from(categoryField.options);
+        
+        const matchingOption = categoryOptions.find(option => option.value === itemName);
+        if (matchingOption) {
+            categoryField.value = itemName;
+        }
+    });
+
+    // Event listeners for input fields to clear errors on input
+    const formInputs = addInventoryForm.querySelectorAll('.form-control');
+    formInputs.forEach(input => {
+        input.addEventListener('input', function() {
+            this.classList.remove('error-input');
+            const errorId = this.id + 'Error';
+            const errorElement = document.getElementById(errorId);
+            if (errorElement) {
+                errorElement.style.display = 'none';
+            }
+        });
+    });
+
+    // Function to check if items are low in stock and need reordering
+    function checkLowStockItems() {
+        const lowStockItems = inventoryItems.filter(item => 
+            item.quantity <= item.reorderLevel
+        );
+        
+        // Update localStorage with low stock items for reminders
+        localStorage.setItem('lowStockItems', JSON.stringify(lowStockItems));
+        
+        // Update notification count if there are low stock items
+        const reminderCount = lowStockItems.length;
+        if (reminderCount > 0) {
+            // Create or update the reminder badge
+            const reminderLink = document.querySelector('a[href="reminders.html"]');
+            if (reminderLink) {
+                let badge = reminderLink.querySelector('.reminder-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.className = 'reminder-badge';
+                    badge.style.backgroundColor = '#ea4335';
+                    badge.style.color = 'white';
+                    badge.style.borderRadius = '50%';
+                    badge.style.padding = '2px 6px';
+                    badge.style.fontSize = '0.7rem';
+                    badge.style.marginLeft = '5px';
+                    reminderLink.appendChild(badge);
+                }
+                badge.textContent = reminderCount;
+            }
+        }
+    }
+
+    // Run the low stock check when page loads
+    checkLowStockItems();
+});
+        });
+    </script>
+</body>
+</html>

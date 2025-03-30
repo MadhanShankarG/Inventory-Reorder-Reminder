@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Cement Store Inventory System</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #1a75ff, #0056b3);
+            padding: 20px;
+        }
+        
+        .login-container {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+            padding: 30px;
+            animation: fadeIn 0.8s ease-out forwards;
+        }
+        
+        .login-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-header h1 {
+            color: #1a75ff;
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .login-header img {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 15px;
+        }
+        
+        .login-header p {
+            color: #777;
+            font-size: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            border-color: #1a75ff;
+            box-shadow: 0 0 0 3px rgba(26, 117, 255, 0.2);
+        }
+        
+        .form-group.error input {
+            border-color: #ff3333;
+        }
+        
+        .error-message {
+            color: #ff3333;
+            font-size: 0.85rem;
+            margin-top: 5px;
+            display: none;
+        }
+        
+        .form-group.error .error-message {
+            display: block;
+        }
+        
+        .remember-forgot {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-size: 0.9rem;
+        }
+        
+        .remember-me {
+            display: flex;
+            align-items: center;
+        }
+        
+        .remember-me input {
+            margin-right: 8px;
+        }
+        
+        .forgot-password {
+            color: #1a75ff;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .forgot-password:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .login-button {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: #1a75ff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 20px;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        
+        .login-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-3px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .login-button:active {
+            transform: translateY(-1px);
+        }
+        
+        .signup-link {
+            text-align: center;
+            font-size: 0.95rem;
+            color: #555;
+        }
+        
+        .signup-link a {
+            color: #1a75ff;
+            text-decoration: none;
+            font-weight: 600;
+            transition: color 0.3s;
+        }
+        
+        .signup-link a:hover {
+            color: #0056b3;
+            text-decoration: underline;
+        }
+        
+        .back-to-home {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+            transition: transform 0.3s;
+        }
+        
+        .back-to-home:hover {
+            transform: translateX(-3px);
+        }
+        
+        .back-to-home i {
+            margin-right: 5px;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 20px;
+            }
+            
+            .login-header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .remember-forgot {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-to-home">
+        <i class="fas fa-arrow-left"></i> Back to Home
+    </a>
+    
+    <div class="login-container">
+        <div class="login-header">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MTIgNTEyIj48cGF0aCBmaWxsPSIjMWE3NWZmIiBkPSJNMTUyLjEgMzguMkM4NS41IDQ4LjUgMzIuMSA5Ni43IDMyLjEgMTQzLjV2NzQuOWMwIDIwLjMgMjcuNCAzNyA2MS4xIDM3IGM0MS4zIDAgNzQuMSAtMjIuNSA3NC4xIC03My4yIHYtOTkuNGwxNTMuMiAtMjEuNnY3OS4xYzAgLTQ2LjggLTUzLjQgLTk1LjEgLTEyMC4xIC0xMDUuMyBjLTE2LjMgLTIuNSAtMzMuMSAtMi4zIC00OC4zIDMuMnogTTQ0Ny44IDU3LjRjLTEzLjQgLTcuMiAtMzEuNiAtMTAuOCAtNTMuNCAtMTAuOGMtMzEuOCAwIC01My45IDcuMiAtNzMgMTFjLTExLjMgMi4zIC0yNC45IC0yLjIgLTM2LjQgLTEwLjhjLTMuNyAtMi44IC04LjggLTMuNCAtMTMuMSAtMS40Yy00LjQgMSAtNy44IDQuNyAtOC44IDkuMmMtMS4yIDQuNSAtNS45IDQ5IC01LjkgODguNnY4MmMwIDM4LjYgMjcuNCA3MCAxIDEyMCBjMCAyOC43IDQ1IDk2IDE2OCA5NiA1MSAwIDkxLjkgLTEyLjkgMTEzIC0zNy42YzE4LjEgLTIxLjIgMTkgLTQ5LjcgMTkgLTcwLjRjMCAtNTUuMSAtMjMuMiAtOTQgLTIzLjIgLTk0Vjk2YzAgLTE0LjkgLTkuMiAtMzIuNyAtNDMuMiAtNDAuNCAtMS42IC0wLjMgLTMuMyAtMC4zIC01IC0wLjV2MTUuMXoiLz48L3N2Zz4=" alt="Cement Inventory Logo">
+            <h1>Welcome Back</h1>
+            <p>Login to access your inventory management system</p>
+        </div>
+        
+        <form id="loginForm">
+            <div class="form-group" id="emailGroup">
+                <label for="email">Email or Username</label>
+                <input type="text" id="email" name="email" placeholder="Enter your email or username">
+                <div class="error-message">Please enter a valid email address</div>
+            </div>
+            
+            <div class="form-group" id="passwordGroup">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter your password">
+                <div class="error-message">Password must be at least 6 characters</div>
+            </div>
+            
+            <div class="remember-forgot">
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Remember Me</label>
+                </div>
+                <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+            
+            <button type="submit" class="login-button">Login</button>
+            
+            <div class="signup-link">
+                Don't have an account? <a href="signup.html">Sign Up</a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Font Awesome for icons -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/js/all.min.js"></script>
+    
+    <script>
+        // Form validation
+        const loginForm = document.getElementById('loginForm');
+        const emailGroup = document.getElementById('emailGroup');
+        const passwordGroup = document.getElementById('passwordGroup');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        
+        // Validate email format
+        function isValidEmail(email) {
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            // Allow either username or email format
+            return emailRegex.test(email) || email.length > 3;
+        }
+        
+        // Form submission
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            let isValid = true;
+            
+            // Reset previous error states
+            emailGroup.classList.remove('error');
+            passwordGroup.classList.remove('error');
+            
+            // Validate email
+            if (!emailInput.value.trim() || (!isValidEmail(emailInput.value) && emailInput.value.includes('@'))) {
+                emailGroup.classList.add('error');
+                isValid = false;
+            }
+            
+            // Validate password
+            if (!passwordInput.value.trim() || passwordInput.value.length < 6) {
+                passwordGroup.classList.add('error');
+                isValid = false;
+            }
+            
+            // If form is valid, simulate login
+            if (isValid) {
+                // Add button animation
+                const loginButton = document.querySelector('.login-button');
+                loginButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+                loginButton.disabled = true;
+                
+                // Simulate API call
+                setTimeout(() => {
+                    // Redirect to dashboard (would be implemented in a real system)
+                    window.location.href = "dashboard.html";
+                }, 1500);
+            }
+        });
+        
+        // Clear error state on input
+        emailInput.addEventListener('input', function() {
+            emailGroup.classList.remove('error');
+        });
+        
+        passwordInput.addEventListener('input', function() {
+            passwordGroup.classList.remove('error');
+        });
+        
+        // Animation for button on hover
+        const loginButton = document.querySelector('.login-button');
+        loginButton.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-3px)';
+        });
+        
+        loginButton.addEventListener('mouseleave', function() {
+            this.style.transform = '';
+        });
+    </script>
+</body>
+</html>

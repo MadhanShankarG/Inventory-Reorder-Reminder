@@ -1,0 +1,1413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Inventory List - Cement Store Inventory System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f1f5f9;
+            --accent-color: #34a853;
+            --warning-color: #fbbc05;
+            --danger-color: #ea4335;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --border-color: #dadce0;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .menu-item span {
+            display: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-btn:hover {
+            background-color: #1565c0;
+        }
+
+        .add-btn i {
+            margin-right: 8px;
+        }
+
+        .notification-icon {
+            margin: 0 20px;
+            position: relative;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+
+        .notification-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--danger-color);
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            position: relative;
+            cursor: pointer;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--primary-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 50px;
+            right: 0;
+            background-color: white;
+            border-radius: 4px;
+            box-shadow: var(--card-shadow);
+            width: 200px;
+            z-index: 100;
+            display: none;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+        }
+
+        .dropdown-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            color: var(--text-color);
+            text-decoration: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .dropdown-item i {
+            margin-right: 10px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        /* Search and Filter Section */
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .search-container {
+            flex: 2;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .filter-container {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        /* Inventory Table Section */
+        .inventory-table-container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .table-responsive {
+            overflow-x: auto;
+        }
+
+        .inventory-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .inventory-table th {
+            text-align: left;
+            padding: 15px;
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            font-weight: 600;
+            font-size: 0.9rem;
+            position: sticky;
+            top: 0;
+            z-index: 1;
+        }
+
+        .inventory-table td {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: background-color 0.2s ease;
+        }
+
+        .inventory-table tr:nth-child(even) {
+            background-color: rgba(241, 245, 249, 0.5);
+        }
+
+        .inventory-table tr:hover td {
+            background-color: rgba(26, 115, 232, 0.05);
+        }
+
+        .low-stock-row {
+            background-color: rgba(251, 188, 5, 0.1) !important;
+        }
+
+        .out-of-stock-row {
+            background-color: rgba(234, 67, 53, 0.1) !important;
+        }
+
+        .stock-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .stock-normal {
+            background-color: var(--accent-color);
+        }
+
+        .stock-warning {
+            background-color: var(--warning-color);
+        }
+
+        .stock-danger {
+            background-color: var(--danger-color);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-edit {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-edit:hover {
+            background-color: #1565c0;
+        }
+
+        .btn-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .pagination-info {
+            margin-right: auto;
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .pagination-btn {
+            margin: 0 5px;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background-color: white;
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .pagination-btn:hover, .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:disabled {
+            background-color: var(--secondary-color);
+            color: var(--light-text);
+            cursor: not-allowed;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal {
+            background-color: white;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 600px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--light-text);
+            cursor: pointer;
+            transition: color 0.2s ease;
+        }
+
+        .close-btn:hover {
+            color: var(--danger-color);
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            font-size: 0.9rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .btn-cancel {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-cancel:hover {
+            background-color: #dde5ed;
+        }
+
+        .btn-save {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-save:hover {
+            background-color: #1565c0;
+        }
+
+        /* Delete Confirmation Modal */
+        .delete-modal .modal-body {
+            text-align: center;
+            padding: 30px 20px;
+        }
+
+        .delete-icon {
+            font-size: 3rem;
+            color: var(--danger-color);
+            margin-bottom: 20px;
+        }
+
+        .delete-message {
+            margin-bottom: 20px;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .btn-confirm-delete {
+            background-color: var(--danger-color);
+            color: white;
+        }
+
+        .btn-confirm-delete:hover {
+            background-color: #d32f2f;
+        }
+
+        /* No Data Message */
+        .no-data {
+            padding: 40px;
+            text-align: center;
+            color: var(--light-text);
+            font-size: 1rem;
+        }
+
+        .no-data i {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            color: var(--border-color);
+        }
+
+        /* Animation for Edit/Delete Buttons */
+        .btn-edit, .btn-delete {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-edit::after, .btn-delete::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+
+        .btn-edit:focus:not(:active)::after, .btn-delete:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .search-filter-container {
+                flex-direction: column;
+            }
+            
+            .search-container, .filter-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .header {
+                flex-wrap: wrap;
+            }
+            
+            .header-actions {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .page-title {
+                width: 100%;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .inventory-table th:nth-child(4), 
+            .inventory-table td:nth-child(4) {
+                display: none;
+            }
+        }
+
+        /* Animation for New Items */
+        @keyframes highlight {
+            0% {
+                background-color: rgba(26, 115, 232, 0.2);
+            }
+            100% {
+                background-color: transparent;
+            }
+        }
+
+        .highlight-row {
+            animation: highlight 2s ease-in-out;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Cement Track</h2>
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="{{ url_for('dashboard') }}" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventory.html" class="menu-item active">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory List</span>
+            </a>
+            <a href="add_inventory.html" class="menu-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Inventory</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-layer-group"></i>
+                <span>View Stock</span>
+            </a>
+            <a href="reminders.html" class="menu-item">
+                <i class="fas fa-bell"></i>
+                <span>Reminders</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header Section -->
+        <div class="header">
+            <h1 class="page-title">Inventory List</h1>
+            <div class="header-actions">
+                <button class="add-btn" id="addInventoryBtn">
+                    <i class="fas fa-plus"></i> Add New Item
+                </button>
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-count" id="notificationCount">0</span>
+                </div>
+                <div class="user-profile" id="userProfile">
+                    <div class="user-avatar">
+                        <span>U</span>
+                    </div>
+                    <span class="user-name">User</span>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-user"></i>
+                            <span>Profile</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-cog"></i>
+                            <span>Settings</span>
+                        </a>
+                        <a href="#" class="dropdown-item">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Logout</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-container">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search by item name or category...">
+            </div>
+            <div class="filter-container">
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">All Categories</option>
+                    <option value="Cement">Cement</option>
+                    <option value="Steel">Steel</option>
+                    <option value="Sand">Sand</option>
+                    <option value="Bricks">Bricks</option>
+                    <option value="Tools">Tools</option>
+                </select>
+                <select id="stockFilter" class="filter-select">
+                    <option value="">All Stock Status</option>
+                    <option value="normal">Normal Stock</option>
+                    <option value="low">Low Stock</option>
+                    <option value="out">Out of Stock</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Inventory Table Section -->
+        <div class="inventory-table-container">
+            <div class="table-responsive">
+                <table class="inventory-table" id="inventoryTable">
+                    <thead>
+                        <tr>
+                            <th>Item Name</th>
+                            <th>Category</th>
+                            <th>Current Stock</th>
+                            <th>Reorder Level</th>
+                            <th>Last Updated</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="inventoryTableBody">
+                        <!-- Table rows will be dynamically generated from JavaScript -->
+                    </tbody>
+                </table>
+                <div class="no-data" id="noDataMessage" style="display: none;">
+                    <i class="fas fa-box-open"></i>
+                    <p>No inventory items found</p>
+                </div>
+            </div>
+            <!-- Pagination -->
+            <div class="pagination">
+                <div class="pagination-info" id="paginationInfo">
+                    Showing <span id="showingFrom">0</span> to <span id="showingTo">0</span> of <span id="totalItems">0</span> items
+                </div>
+                <button class="pagination-btn" id="prevPage" disabled>
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <div id="paginationNumbers"></div>
+                <button class="pagination-btn" id="nextPage">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Item Modal -->
+    <div class="modal-overlay" id="editModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Edit Inventory Item</h3>
+                <button class="close-btn" id="closeEditModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="editItemForm">
+                    <input type="hidden" id="editItemId">
+                    <div class="form-group">
+                        <label for="editItemName">Item Name</label>
+                        <input type="text" id="editItemName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCategory">Category</label>
+                        <select id="editCategory" class="form-control" required>
+                            <option value="Cement">Cement</option>
+                            <option value="Steel">Steel</option>
+                            <option value="Sand">Sand</option>
+                            <option value="Bricks">Bricks</option>
+                            <option value="Tools">Tools</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="editCurrentStock">Current Stock</label>
+                        <input type="number" id="editCurrentStock" class="form-control" min="0" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="editReorderLevel">Reorder Level</label>
+                        <input type="number" id="editReorderLevel" class="form-control" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelEdit">Cancel</button>
+                <button type="button" class="btn btn-save" id="saveEdit">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirmation Modal -->
+    <div class="modal-overlay delete-modal" id="deleteModalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Confirm Deletion</h3>
+                <button class="close-btn" id="closeDeleteModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="delete-icon">
+                    <i class="fas fa-trash-alt"></i>
+                </div>
+                <p class="delete-message">Are you sure you want to delete <span id="deleteItemName"></span>?</p>
+                <p>This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-cancel" id="cancelDelete">Cancel</button>
+                <button type="button" class="btn btn-confirm-delete" id="confirmDelete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Inventory data - this would typically come from a database
+let inventoryItems = [
+    {
+        id: 1,
+        name: "Portland Cement",
+        category: "Cement",
+        currentStock: 150,
+        reorderLevel: 50,
+        lastUpdated: "2025-03-10"
+    },
+    {
+        id: 2,
+        name: "Reinforcement Steel Bars",
+        category: "Steel",
+        currentStock: 200,
+        reorderLevel: 75,
+        lastUpdated: "2025-03-15"
+    },
+    {
+        id: 3,
+        name: "River Sand",
+        category: "Sand",
+        currentStock: 30,
+        reorderLevel: 50,
+        lastUpdated: "2025-03-12"
+    },
+    {
+        id: 4,
+        name: "Clay Bricks",
+        category: "Bricks",
+        currentStock: 1200,
+        reorderLevel: 500,
+        lastUpdated: "2025-03-18"
+    },
+    {
+        id: 5,
+        name: "Masonry Cement",
+        category: "Cement",
+        currentStock: 75,
+        reorderLevel: 40,
+        lastUpdated: "2025-03-05"
+    },
+    {
+        id: 6,
+        name: "White Cement",
+        category: "Cement",
+        currentStock: 45,
+        reorderLevel: 50,
+        lastUpdated: "2025-03-11"
+    },
+    {
+        id: 7,
+        name: "Angular Steel",
+        category: "Steel",
+        currentStock: 120,
+        reorderLevel: 60,
+        lastUpdated: "2025-03-17"
+    },
+    {
+        id: 8,
+        name: "Concrete Mix",
+        category: "Cement",
+        currentStock: 90,
+        reorderLevel: 40,
+        lastUpdated: "2025-03-08"
+    },
+    {
+        id: 9,
+        name: "Construction Sand",
+        category: "Sand",
+        currentStock: 0,
+        reorderLevel: 40,
+        lastUpdated: "2025-03-14"
+    },
+    {
+        id: 10,
+        name: "Hammer",
+        category: "Tools",
+        currentStock: 15,
+        reorderLevel: 10,
+        lastUpdated: "2025-03-16"
+    },
+    {
+        id: 11,
+        name: "Concrete Blocks",
+        category: "Bricks",
+        currentStock: 800,
+        reorderLevel: 400,
+        lastUpdated: "2025-03-09"
+    },
+    {
+        id: 12,
+        name: "Plaster Trowel",
+        category: "Tools",
+        currentStock: 8,
+        reorderLevel: 10,
+        lastUpdated: "2025-03-13"
+    }
+];
+
+// Pagination variables
+let currentPage = 1;
+const itemsPerPage = 5;
+let filteredItems = [...inventoryItems];
+
+// DOM Elements
+const searchInput = document.getElementById('searchInput');
+const categoryFilter = document.getElementById('categoryFilter');
+const stockFilter = document.getElementById('stockFilter');
+const inventoryTable = document.getElementById('inventoryTable');
+const inventoryTableBody = document.getElementById('inventoryTableBody');
+const noDataMessage = document.getElementById('noDataMessage');
+const paginationInfo = document.getElementById('paginationInfo');
+const prevPageBtn = document.getElementById('prevPage');
+const nextPageBtn = document.getElementById('nextPage');
+const paginationNumbers = document.getElementById('paginationNumbers');
+const showingFrom = document.getElementById('showingFrom');
+const showingTo = document.getElementById('showingTo');
+const totalItems = document.getElementById('totalItems');
+
+// Modal Elements
+const editModalOverlay = document.getElementById('editModalOverlay');
+const closeEditModal = document.getElementById('closeEditModal');
+const editItemForm = document.getElementById('editItemForm');
+const editItemId = document.getElementById('editItemId');
+const editItemName = document.getElementById('editItemName');
+const editCategory = document.getElementById('editCategory');
+const editCurrentStock = document.getElementById('editCurrentStock');
+const editReorderLevel = document.getElementById('editReorderLevel');
+const cancelEdit = document.getElementById('cancelEdit');
+const saveEdit = document.getElementById('saveEdit');
+
+const deleteModalOverlay = document.getElementById('deleteModalOverlay');
+const closeDeleteModal = document.getElementById('closeDeleteModal');
+const deleteItemName = document.getElementById('deleteItemName');
+const cancelDelete = document.getElementById('cancelDelete');
+const confirmDelete = document.getElementById('confirmDelete');
+
+// Sidebar toggle functionality
+const toggleSidebar = document.getElementById('toggleSidebar');
+const sidebar = document.getElementById('sidebar');
+const mainContent = document.getElementById('mainContent');
+
+toggleSidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('collapsed');
+    mainContent.classList.toggle('expanded');
+    
+    // Update toggle button icon
+    if (sidebar.classList.contains('collapsed')) {
+        toggleSidebar.innerHTML = '<i class="fas fa-angle-double-right"></i>';
+    } else {
+        toggleSidebar.innerHTML = '<i class="fas fa-angle-double-left"></i>';
+    }
+});
+
+// User dropdown menu
+const userProfile = document.getElementById('userProfile');
+const userDropdown = document.getElementById('userDropdown');
+
+userProfile.addEventListener('click', () => {
+    userDropdown.classList.toggle('show');
+});
+
+// Close dropdown when clicking outside
+window.addEventListener('click', (e) => {
+    if (!userProfile.contains(e.target) && userDropdown.classList.contains('show')) {
+        userDropdown.classList.remove('show');
+    }
+});
+
+// Initialize notification count
+function updateNotificationCount() {
+    const notificationCount = document.getElementById('notificationCount');
+    const lowStockItems = inventoryItems.filter(item => 
+        item.currentStock < item.reorderLevel && item.currentStock > 0
+    );
+    const outOfStockItems = inventoryItems.filter(item => item.currentStock === 0);
+    
+    const count = lowStockItems.length + outOfStockItems.length;
+    notificationCount.textContent = count;
+    
+    if (count > 0) {
+        notificationCount.style.display = 'flex';
+    } else {
+        notificationCount.style.display = 'none';
+    }
+}
+
+// Filter inventory items based on search and filter criteria
+function filterItems() {
+    const searchTerm = searchInput.value.toLowerCase();
+    const categoryValue = categoryFilter.value;
+    const stockValue = stockFilter.value;
+    
+    filteredItems = inventoryItems.filter(item => {
+        // Apply search filter
+        const matchesSearch = item.name.toLowerCase().includes(searchTerm) || 
+                             item.category.toLowerCase().includes(searchTerm);
+        
+        // Apply category filter
+        const matchesCategory = categoryValue === '' || item.category === categoryValue;
+        
+        // Apply stock status filter
+        let matchesStock = true;
+        if (stockValue === 'low') {
+            matchesStock = item.currentStock < item.reorderLevel && item.currentStock > 0;
+        } else if (stockValue === 'out') {
+            matchesStock = item.currentStock === 0;
+        } else if (stockValue === 'normal') {
+            matchesStock = item.currentStock >= item.reorderLevel;
+        }
+        
+        return matchesSearch && matchesCategory && matchesStock;
+    });
+    
+    // Reset to first page when filtering
+    currentPage = 1;
+    renderTable();
+    updatePagination();
+}
+
+// Determine stock status for styling
+function getStockStatus(item) {
+    if (item.currentStock === 0) {
+        return 'out-of-stock';
+    } else if (item.currentStock < item.reorderLevel) {
+        return 'low-stock';
+    } else {
+        return 'normal';
+    }
+}
+
+// Format date to be more readable
+function formatDate(dateString) {
+    const options = { year: 'numeric', month: 'short', day: 'numeric' };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+}
+
+// Render the inventory table with current filtered items
+function renderTable() {
+    inventoryTableBody.innerHTML = '';
+    
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, filteredItems.length);
+    const displayedItems = filteredItems.slice(startIndex, endIndex);
+    
+    if (displayedItems.length === 0) {
+        inventoryTableBody.style.display = 'none';
+        noDataMessage.style.display = 'block';
+    } else {
+        inventoryTableBody.style.display = '';
+        noDataMessage.style.display = 'none';
+        
+        displayedItems.forEach(item => {
+            const stockStatus = getStockStatus(item);
+            let stockIndicatorClass = '';
+            let stockText = '';
+            
+            if (stockStatus === 'out-of-stock') {
+                stockIndicatorClass = 'stock-danger';
+                stockText = 'Out of Stock';
+            } else if (stockStatus === 'low-stock') {
+                stockIndicatorClass = 'stock-warning';
+                stockText = 'Low Stock';
+            } else {
+                stockIndicatorClass = 'stock-normal';
+                stockText = 'In Stock';
+            }
+            
+            const tr = document.createElement('tr');
+            if (stockStatus === 'out-of-stock') {
+                tr.classList.add('out-of-stock-row');
+            } else if (stockStatus === 'low-stock') {
+                tr.classList.add('low-stock-row');
+            }
+            
+            tr.innerHTML = `
+                <td>${item.name}</td>
+                <td>${item.category}</td>
+                <td>${item.currentStock}</td>
+                <td>${item.reorderLevel}</td>
+                <td>${formatDate(item.lastUpdated)}</td>
+                <td>
+                    <span class="stock-indicator ${stockIndicatorClass}"></span>
+                    ${stockText}
+                </td>
+                <td class="action-buttons">
+                    <button class="btn btn-edit" data-id="${item.id}">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-delete" data-id="${item.id}" data-name="${item.name}">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </td>
+            `;
+            
+            inventoryTableBody.appendChild(tr);
+        });
+        
+        // Add event listeners to the edit and delete buttons
+        addActionButtonListeners();
+    }
+    
+    // Update pagination info
+    showingFrom.textContent = filteredItems.length > 0 ? startIndex + 1 : 0;
+    showingTo.textContent = endIndex;
+    totalItems.textContent = filteredItems.length;
+}
+
+// Add event listeners to the edit and delete buttons
+function addActionButtonListeners() {
+    // Edit button event listeners
+    const editButtons = document.querySelectorAll('.btn-edit');
+    editButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const itemId = parseInt(button.getAttribute('data-id'));
+            openEditModal(itemId);
+        });
+    });
+    
+    // Delete button event listeners
+    const deleteButtons = document.querySelectorAll('.btn-delete');
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            const itemId = parseInt(button.getAttribute('data-id'));
+            const itemName = button.getAttribute('data-name');
+            openDeleteModal(itemId, itemName);
+        });
+    });
+}
+
+// Update pagination controls
+function updatePagination() {
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    
+    // Enable/disable previous and next buttons
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
+    
+    // Generate pagination numbers
+    paginationNumbers.innerHTML = '';
+    
+    // Show a sensible number of page numbers
+    const maxPageLinks = 5;
+    let startPage = Math.max(1, currentPage - Math.floor(maxPageLinks / 2));
+    let endPage = Math.min(totalPages, startPage + maxPageLinks - 1);
+    
+    if (endPage - startPage + 1 < maxPageLinks) {
+        startPage = Math.max(1, endPage - maxPageLinks + 1);
+    }
+    
+    for (let i = startPage; i <= endPage; i++) {
+        const pageBtn = document.createElement('button');
+        pageBtn.classList.add('pagination-btn');
+        if (i === currentPage) {
+            pageBtn.classList.add('active');
+        }
+        pageBtn.textContent = i;
+        pageBtn.addEventListener('click', () => {
+            currentPage = i;
+            renderTable();
+            updatePagination();
+        });
+        paginationNumbers.appendChild(pageBtn);
+    }
+}
+
+// Open edit modal with item data
+function openEditModal(itemId) {
+    const item = inventoryItems.find(item => item.id === itemId);
+    if (item) {
+        editItemId.value = item.id;
+        editItemName.value = item.name;
+        editCategory.value = item.category;
+        editCurrentStock.value = item.currentStock;
+        editReorderLevel.value = item.reorderLevel;
+        
+        editModalOverlay.classList.add('show');
+    }
+}
+
+// Close edit modal
+function closeEditModalFunction() {
+    editModalOverlay.classList.remove('show');
+}
+
+// Save edited item
+function saveEditedItem() {
+    const id = parseInt(editItemId.value);
+    const item = inventoryItems.find(item => item.id === id);
+    
+    if (item) {
+        item.name = editItemName.value;
+        item.category = editCategory.value;
+        item.currentStock = parseInt(editCurrentStock.value);
+        item.reorderLevel = parseInt(editReorderLevel.value);
+        item.lastUpdated = new Date().toISOString().split('T')[0]; // Update to today's date
+        
+        closeEditModalFunction();
+        filterItems(); // Re-filter and render table
+        updateNotificationCount(); // Update notification count
+        
+        // Highlight the edited row
+        setTimeout(() => {
+            const editedRow = document.querySelector(`button.btn-edit[data-id="${id}"]`).closest('tr');
+            if (editedRow) {
+                editedRow.classList.add('highlight-row');
+                setTimeout(() => {
+                    editedRow.classList.remove('highlight-row');
+                }, 2000);
+            }
+        }, 100);
+    }
+}
+
+// Open delete confirmation modal
+function openDeleteModal(itemId, itemName) {
+    deleteItemName.textContent = itemName;
+    deleteModalOverlay.setAttribute('data-id', itemId);
+    deleteModalOverlay.classList.add('show');
+}
+
+// Close delete modal
+function closeDeleteModalFunction() {
+    deleteModalOverlay.classList.remove('show');
+}
+
+// Delete the item
+function deleteItem() {
+    const itemId = parseInt(deleteModalOverlay.getAttribute('data-id'));
+    
+    // Find the index of the item to delete
+    const itemIndex = inventoryItems.findIndex(item => item.id === itemId);
+    if (itemIndex !== -1) {
+        inventoryItems.splice(itemIndex, 1);
+        closeDeleteModalFunction();
+        filterItems(); // Re-filter and render table
+        updateNotificationCount(); // Update notification count
+    }
+}
+
+// Add new inventory button redirects to add_inventory.html
+document.getElementById('addInventoryBtn').addEventListener('click', () => {
+    window.location.href = 'add_inventory.html';
+});
+
+// Event listeners for search and filters
+searchInput.addEventListener('input', filterItems);
+categoryFilter.addEventListener('change', filterItems);
+stockFilter.addEventListener('change', filterItems);
+
+// Pagination event listeners
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        currentPage--;
+        renderTable();
+        updatePagination();
+    }
+});
+
+nextPageBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+    if (currentPage < totalPages) {
+        currentPage++;
+        renderTable();
+        updatePagination();
+    }
+});
+
+// Modal event listeners
+closeEditModal.addEventListener('click', closeEditModalFunction);
+cancelEdit.addEventListener('click', closeEditModalFunction);
+saveEdit.addEventListener('click', saveEditedItem);
+
+closeDeleteModal.addEventListener('click', closeDeleteModalFunction);
+cancelDelete.addEventListener('click', closeDeleteModalFunction);
+confirmDelete.addEventListener('click', deleteItem);
+
+// Close modals when clicking outside
+editModalOverlay.addEventListener('click', (e) => {
+    if (e.target === editModalOverlay) {
+        closeEditModalFunction();
+    }
+});
+
+deleteModalOverlay.addEventListener('click', (e) => {
+    if (e.target === deleteModalOverlay) {
+        closeDeleteModalFunction();
+    }
+});
+
+// Initialize the page
+document.addEventListener('DOMContentLoaded', () => {
+    updateNotificationCount();
+    filterItems();
+});
+    </script>
+</body>
+</html>

@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CementTrack - Inventory Reorder System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        :root {
+            --primary-color: #1e88e5;
+            --primary-dark: #1565c0;
+            --white: #ffffff;
+            --light-gray: #f5f5f5;
+            --dark-gray: #333333;
+        }
+
+        body {
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: var(--dark-gray);
+        }
+
+        /* Header */
+        header {
+            background-color: var(--white);
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 15px 20px;
+            position: fixed;
+            width: 100%;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .logo i {
+            margin-right: 10px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary-color);
+        }
+
+        .nav-links a i {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+
+        .nav-text {
+            transition: all 0.3s ease;
+        }
+
+        /* Hero Section with Carousel */
+        .hero {
+            height: 100vh;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .carousel {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+        }
+
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .carousel-slide.active {
+            opacity: 1;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            color: var(--white);
+            padding: 20px;
+        }
+
+        .hero-content {
+            max-width: 800px;
+        }
+
+        .hero-content h1 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .hero-content p {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        }
+
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border-radius: 30px;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: var(--white);
+        }
+
+        .btn-secondary {
+            background-color: transparent;
+            color: var(--white);
+            border: 2px solid var(--white);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        .btn i {
+            margin-right: 10px;
+        }
+        /* From Uiverse.io */
+        .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-family: inherit;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+    width: auto;
+    padding: 12px 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+
+.button:active {
+    transform: scale(0.95);
+}
+
+.button span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.4s;
+}
+
+.button span:after {
+content: attr(data-extra);
+ position: absolute;
+ opacity: 0;
+ top: 0;
+ right: -20px;
+ transition: 0.7s;
+}
+
+.button:hover span {
+    padding-right: 4.1em;
+}
+
+.button:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+.button1 {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    border: none;
+    background-color: var(--primary-color);
+    color: var(--white);
+    font-family: inherit;
+    text-align: center;
+    font-size: 1rem;
+    font-weight: 600;
+    box-shadow: 0px 10px 20px rgba(0, 0, 0, 0.2);
+    width: auto;
+    padding: 12px 30px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.button1:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+
+.button1:active {
+    transform: scale(0.95);
+}
+
+.button1 span {
+    cursor: pointer;
+    display: inline-block;
+    position: relative;
+    transition: 0.4s;
+}
+
+.button1 span:after {
+    content: attr(data-extra);
+    position: absolute;
+    opacity: 0;
+    top: 0;
+    right: -20px;
+    transition: 0.7s;
+}
+
+.button1:hover span {
+    padding-right: 2.55em;
+}
+
+.button1:hover span:after {
+    opacity: 1;
+    right: 0;
+}
+        
+
+        /* Features Section */
+        .features {
+            padding: 80px 20px;
+            background-color: var(--white);
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+            color: var(--primary-color);
+            font-size: 2.5rem;
+        }
+
+        .feature-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 40px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-item {
+            flex: 1 1 250px;
+            max-width: 350px;
+            text-align: center;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            background-color: var(--white);
+        }
+
+        .feature-item:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            color: var(--dark-gray);
+        }
+
+        .feature-description {
+            color: #666;
+            line-height: 1.6;
+        }
+
+        /* About/Contact Section */
+        .contact {
+            padding: 80px 20px;
+            background-color: var(--light-gray);
+        }
+
+        .contact-container {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            gap: 50px;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-form {
+            flex: 1;
+            background-color: var(--white);
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--dark-gray);
+            color: var(--white);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 20px 0;
+        }
+
+        .footer-links a {
+            color: var(--white);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .hero-content h1 {
+                font-size: 2rem;
+            }
+
+            .btn-container {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .contact-container {
+                flex-direction: column;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+                font-size: 1.5rem;
+                cursor: pointer;
+            }
+        }
+
+        /* Medium screens - icon and text shrinking */
+        @media (max-width: 1024px) and (min-width: 769px) {
+            .nav-links {
+                gap: 10px;
+            }
+            
+            .nav-links a {
+                font-size: 14px;
+            }
+        }
+
+        /* Small screens - icons only */
+        @media (max-width: 900px) and (min-width: 769px) {
+            .nav-text {
+                display: none;
+            }
+            
+            .nav-links a i {
+                margin-right: 0;
+                font-size: 18px;
+            }
+        }
+
+        .mobile-menu-btn {
+            display: none;
+        }
+
+        .mobile-menu {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background-color: var(--white);
+            padding: 20px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+            display: none;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 99;
+        }
+
+        .mobile-menu.active {
+            display: flex;
+        }
+
+        .mobile-menu a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-weight: 500;
+            padding: 10px 0;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        .mobile-menu a i {
+            margin-right: 10px;
+            width: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <div class="logo">
+            <i class="fas fa-cubes"></i> CementTrack
+        </div>
+        <div class="nav-links">
+            <a href="#home"><i class="fas fa-home"></i><span class="nav-text">Home</span></a>
+            <a href="#features"><i class="fa fa-list"></i><span class="nav-text">Features</span></a>
+            <a href="#contact"><i class="fas fa-envelope"></i><span class="nav-text">Contact</span></a>
+            <a href="login.html"><i class="fas fa-sign-in-alt"></i><span class="nav-text">Login</span></a>
+            <a href="signup.html"><i class="fas fa-user-plus"></i><span class="nav-text">Sign Up</span></a>
+        </div>
+        <div class="mobile-menu-btn">
+            <i class="fas fa-bars"></i>
+        </div>
+    </header>
+
+    <div class="mobile-menu">
+        <a href="#home"><i class="fas fa-home"></i> Home</a>
+        <a href="#features"><i class="fas fa-lis"></i> Features</a>
+        <a href="#contact"><i class="fas fa-envelope"></i> Contact</a>
+        <a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a>
+        <a href="signup.html"><i class="fas fa-user-plus"></i> Sign Up</a>
+    </div>
+
+    <!-- Hero Section with Carousel -->
+    <section id="home" class="hero">
+        <div class="carousel">
+            <div class="carousel-slide active" style="background-image: url('https://i.postimg.cc/R0NJyyrS/Untitled-Presentation-Design.png')"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.postimg.cc/qRJXNQSW/Bricks-Presentation.png')"></div>
+            <div class="carousel-slide" style="background-image: url('https://i.postimg.cc/8kHkd43t/Steel-Presentation-1.png')"></div>
+        </div>
+        <div class="overlay">
+            <div class="hero-content">
+                <h1>Cement Store Inventory Reorder Reminder System</h1>
+                <p>Effortlessly track and manage your cement store inventory. Stay notified of low-stock items and streamline your business operations!</p>
+                <div class="btn-container">
+                    <a href="login.html" class="button1"><span data-extra=" now">Login</span></a>
+                    <a href="signup.html" class="button"><span data-extra=" for free">Sign up</span></a>
+
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="features">
+        <h2 class="section-title">Our Features</h2>
+        <div class="feature-container">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <h3 class="feature-title">Inventory Tracking</h3>
+                <p class="feature-description">Keep track of all your cement products, steel rods, and construction materials in real-time with our advanced inventory system.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-bell"></i>
+                </div>
+                <h3 class="feature-title">Automatic Reminders</h3>
+                <p class="feature-description">Get instant notifications when inventory reaches reorder levels. Never run out of stock and miss sales opportunities.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Sales Analytics</h3>
+                <p class="feature-description">Analyze sales trends and inventory turnover to make data-driven decisions for your cement store business.</p>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Mobile Access</h3>
+                <p class="feature-description">Access your inventory system from anywhere using our mobile-responsive design. Manage your business on the go.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- About/Contact Section -->
+    <section id="contact" class="contact">
+        <h2 class="section-title">Contact Us</h2>
+        <div class="contact-container">
+            <div class="contact-info">
+                <h3>About CementTrack</h3>
+                <p style="margin-bottom: 20px; line-height: 1.6;">
+                    CementTrack is the leading inventory management system designed specifically for cement stores and construction material retailers. With over 5 years of industry experience, we understand the unique challenges faced by building material suppliers.
+                </p>
+                <p style="margin-bottom: 20px; line-height: 1.6;">
+                    Our system helps hundreds of store owners across the country streamline their inventory processes, reduce stockouts, and maximize profits.
+                </p>
+                <div style="margin-top: 30px;">
+                    <h4 style="margin-bottom: 15px;">Contact Information</h4>
+                    <p><i class="fas fa-map-marker-alt" style="margin-right: 10px; color: var(--primary-color);"></i> 123 Construction Ave, Building Block, CA 90001</p>
+                    <p><i class="fas fa-phone" style="margin-right: 10px; color: var(--primary-color);"></i> (555) 123-4567</p>
+                    <p><i class="fas fa-envelope" style="margin-right: 10px; color: var(--primary-color);"></i> info@cementtrack.com</p>
+                </div>
+            </div>
+            <div class="contact-form">
+                <h3 style="margin-bottom: 20px;">Send Us a Message</h3>
+                <form id="contactForm">
+                    <div class="form-group">
+                        <label for="name">Your Name</label>
+                        <input type="text" id="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" class="form-control" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">
+                        <i class="fas fa-paper-plane"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="logo" style="justify-content: center; margin-bottom: 20px;">
+            <i class="fas fa-cubes"></i> CementTrack
+        </div>
+        <p>The ultimate inventory management solution for cement and construction material stores.</p>
+        <div class="footer-links">
+            <a href="#home">Home</a>
+            <a href="#features">Features</a>
+            <a href="#contact">Contact</a>
+            <a href="#privacy">Privacy Policy</a>
+            <a href="#terms">Terms of Service</a>
+        </div>
+        <p>&copy; 2025 CementTrack. All rights reserved.</p>
+    </footer>
+
+    <!-- JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Smooth scroll for navigation
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Add button click animation
+                    if (this.classList.contains('btn')) {
+                        this.style.transform = 'scale(0.95)';
+                        setTimeout(() => {
+                            this.style.transform = '';
+                        }, 200);
+                    }
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    window.scrollTo({
+                        top: targetElement.offsetTop,
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Image carousel
+            const slides = document.querySelectorAll('.carousel-slide');
+            let currentSlide = 0;
+            
+            function showSlide(index) {
+                slides.forEach(slide => slide.classList.remove('active'));
+                currentSlide = (index + slides.length) % slides.length;
+                slides[currentSlide].classList.add('active');
+            }
+            
+            function nextSlide() {
+                showSlide(currentSlide + 1);
+            }
+            
+            // Change slide every 5 seconds
+            setInterval(nextSlide, 5000);
+            
+            // Form submissions
+            document.getElementById('contactForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                alert('Thank you for your message. We will get back to you soon!');
+                this.reset();
+            });
+            
+            // Mobile menu toggle
+            const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+            const mobileMenu = document.querySelector('.mobile-menu');
+            
+            mobileMenuBtn.addEventListener('click', function() {
+                mobileMenu.classList.toggle('active');
+                
+                const icon = this.querySelector('i');
+                if (mobileMenu.classList.contains('active')) {
+                    icon.classList.remove('fa-bars');
+                    icon.classList.add('fa-times');
+                } else {
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                }
+            });
+            
+            // Close mobile menu when clicking a link
+            document.querySelectorAll('.mobile-menu a').forEach(link => {
+                link.addEventListener('click', function() {
+                    mobileMenu.classList.remove('active');
+                    const icon = mobileMenuBtn.querySelector('i');
+                    icon.classList.remove('fa-times');
+                    icon.classList.add('fa-bars');
+                });
+            });
+
+            // Window resize handler to manually check when to toggle between text and icons
+            function checkNavigationSize() {
+                const windowWidth = window.innerWidth;
+                const navLinks = document.querySelectorAll('.nav-links a');
+                
+                if (windowWidth <= 900 && windowWidth > 768) {
+                    // Icon only mode
+                    document.querySelectorAll('.nav-text').forEach(text => {
+                        text.style.display = 'none';
+                    });
+                    navLinks.forEach(link => {
+                        link.style.justifyContent = 'center';
+                    });
+                } else if (windowWidth > 900) {
+                    // Full text mode
+                    document.querySelectorAll('.nav-text').forEach(text => {
+                        text.style.display = 'block';
+                    });
+                    navLinks.forEach(link => {
+                        link.style.justifyContent = 'flex-start';
+                    });
+                }
+            }
+            
+            // Initial check
+            checkNavigationSize();
+            
+            // Listen for window resize
+            window.addEventListener('resize', checkNavigationSize);
+        });
+    </script>
+</body>
+</html>

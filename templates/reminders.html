@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reminders - Cement Store Inventory System</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a73e8;
+            --secondary-color: #f1f5f9;
+            --accent-color: #34a853;
+            --warning-color: #fbbc05;
+            --danger-color: #ea4335;
+            --text-color: #202124;
+            --light-text: #5f6368;
+            --border-color: #dadce0;
+            --card-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+            --sidebar-width: 240px;
+            --sidebar-collapsed-width: 64px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            display: flex;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            overflow-x: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background-color: white;
+            position: fixed;
+            left: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar.collapsed {
+            width: var(--sidebar-collapsed-width);
+        }
+
+        .sidebar-header {
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .sidebar-header h2 {
+            font-size: 1.2rem;
+            color: var(--primary-color);
+            white-space: nowrap;
+            overflow: hidden;
+        }
+
+        .sidebar.collapsed .sidebar-header h2 {
+            display: none;
+        }
+
+        .toggle-btn {
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-menu {
+            padding: 20px 0;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: var(--light-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .menu-item:hover, .menu-item.active {
+            background-color: rgba(26, 115, 232, 0.1);
+            color: var(--primary-color);
+            border-left: 3px solid var(--primary-color);
+        }
+
+        .menu-item i {
+            margin-right: 15px;
+            font-size: 1.1rem;
+            min-width: 24px;
+            text-align: center;
+        }
+
+        .sidebar.collapsed .menu-item span {
+            display: none;
+        }
+
+        /* Main Content Styles */
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            transition: margin-left 0.3s ease;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .main-content.expanded {
+            margin-left: var(--sidebar-collapsed-width);
+        }
+
+        /* Header Section */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-color);
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+        }
+
+        .ack-all-btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 10px 16px;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .ack-all-btn:hover {
+            background-color: #1565c0;
+        }
+
+        .ack-all-btn i {
+            margin-right: 8px;
+        }
+
+        /* Alert Banner */
+        .alert-banner {
+            background-color: var(--danger-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--card-shadow);
+            animation: fadeIn 0.5s ease-in-out;
+            display: none;
+        }
+
+        .alert-banner.show {
+            display: flex;
+        }
+
+        .alert-banner i {
+            font-size: 1.5rem;
+            margin-right: 15px;
+        }
+
+        .alert-message {
+            flex: 1;
+        }
+
+        .alert-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Search and Filter Section */
+        .search-filter-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: var(--card-shadow);
+        }
+
+        .search-container {
+            flex: 2;
+            min-width: 300px;
+            position: relative;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 10px 16px 10px 40px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+        }
+
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--light-text);
+        }
+
+        .filter-container {
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            flex: 1;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            outline: none;
+            font-size: 0.9rem;
+            color: var(--text-color);
+            cursor: pointer;
+        }
+
+        /* Reminders Grid */
+        .reminders-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .reminder-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeInUp 0.5s ease-in-out;
+        }
+
+        .reminder-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card-header {
+            padding: 15px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-title {
+            font-weight: 600;
+            font-size: 1rem;
+            color: var(--text-color);
+        }
+
+        .card-alert-status {
+            padding: 6px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+        }
+
+        .alert-danger {
+            background-color: rgba(234, 67, 53, 0.1);
+            color: var(--danger-color);
+        }
+
+        .alert-warning {
+            background-color: rgba(251, 188, 5, 0.1);
+            color: var(--warning-color);
+        }
+
+        .alert-success {
+            background-color: rgba(52, 168, 83, 0.1);
+            color: var(--accent-color);
+        }
+
+        .card-alert-status i {
+            margin-right: 5px;
+        }
+
+        .card-body {
+            padding: 15px;
+        }
+
+        .stock-info {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .info-label {
+            color: var(--light-text);
+            font-size: 0.9rem;
+        }
+
+        .info-value {
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .stock-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: var(--border-color);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 10px 0 15px;
+        }
+
+        .stock-bar {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .stock-bar-danger {
+            background-color: var(--danger-color);
+        }
+
+        .stock-bar-warning {
+            background-color: var(--warning-color);
+        }
+
+        .stock-bar-success {
+            background-color: var(--accent-color);
+        }
+
+        .card-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .btn i {
+            margin-right: 5px;
+        }
+
+        .btn-restock {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-restock:hover {
+            background-color: #1565c0;
+        }
+
+        .btn-ack {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+        }
+
+        .btn-ack:hover {
+            background-color: #dde5ed;
+        }
+
+        /* No Reminders */
+        .no-reminders {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: var(--card-shadow);
+            padding: 40px 20px;
+            text-align: center;
+        }
+
+        .no-reminders i {
+            font-size: 4rem;
+            color: var(--border-color);
+            margin-bottom: 20px;
+        }
+
+        .no-reminders-text {
+            font-size: 1.2rem;
+            color: var(--light-text);
+            margin-bottom: 20px;
+        }
+
+        /* Popup Alert */
+        .popup-alert {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            padding: 20px;
+            width: 300px;
+            z-index: 1000;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .popup-alert.show {
+            transform: translateX(0);
+        }
+
+        .popup-icon {
+            font-size: 1.5rem;
+            color: var(--warning-color);
+            margin-right: 15px;
+        }
+
+        .popup-content {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .popup-title {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .popup-message {
+            font-size: 0.9rem;
+            color: var(--light-text);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            font-size: 1rem;
+            color: var(--light-text);
+            cursor: pointer;
+        }
+
+        /* Responsive Styles */
+        @media (max-width: 1200px) {
+            .search-filter-container {
+                flex-direction: column;
+            }
+            
+            .search-container, .filter-container {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            
+            .sidebar.mobile-show {
+                transform: translateX(0);
+            }
+            
+            .main-content {
+                margin-left: 0;
+            }
+            
+            .main-content.expanded {
+                margin-left: 0;
+            }
+            
+            .header {
+                flex-wrap: wrap;
+            }
+            
+            .header-actions {
+                margin-top: 15px;
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .page-title {
+                width: 100%;
+            }
+
+            .reminders-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <h2>Cement Track</h2>
+            <button class="toggle-btn" id="toggleSidebar">
+                <i class="fas fa-angle-double-left"></i>
+            </button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="menu-item">
+                <i class="fas fa-th-large"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="inventory.html" class="menu-item">
+                <i class="fas fa-boxes"></i>
+                <span>Inventory List</span>
+            </a>
+            <a href="add_inventory.html" class="menu-item">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Inventory</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-layer-group"></i>
+                <span>View Stock</span>
+            </a>
+            <a href="reminders.html" class="menu-item active">
+                <i class="fas fa-bell"></i>
+                <span>Reminders</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-chart-bar"></i>
+                <span>Reports</span>
+            </a>
+            <a href="#" class="menu-item">
+                <i class="fas fa-cog"></i>
+                <span>Settings</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content" id="mainContent">
+        <!-- Header Section -->
+        <div class="header">
+            <h1 class="page-title">Reminders & Notifications</h1>
+            <div class="header-actions">
+                <button class="ack-all-btn" id="acknowledgeAllBtn">
+                    <i class="fas fa-check-double"></i> Acknowledge All
+                </button>
+            </div>
+        </div>
+
+        <!-- Alert Banner for critical stock issues -->
+        <div class="alert-banner" id="alertBanner">
+            <i class="fas fa-exclamation-triangle"></i>
+            <div class="alert-message">
+                <strong>Critical Alert:</strong> <span id="alertMessage">Multiple items are below reorder level and require immediate attention!</span>
+            </div>
+            <button class="alert-close" id="closeAlertBtn">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Search and Filter Section -->
+        <div class="search-filter-container">
+            <div class="search-container">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search items by name...">
+            </div>
+            <div class="filter-container">
+                <select id="stockFilter" class="filter-select">
+                    <option value="all">All Items</option>
+                    <option value="low">Low Stock</option>
+                    <option value="out">Out of Stock</option>
+                </select>
+                <select id="sortFilter" class="filter-select">
+                    <option value="status">Sort by Alert Status</option>
+                    <option value="stock-asc">Stock - Low to High</option>
+                    <option value="stock-desc">Stock - High to Low</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Reminders Grid Section -->
+        <div class="reminders-grid" id="remindersGrid">
+            <!-- Reminder cards will be dynamically generated from JavaScript -->
+        </div>
+
+        <!-- No Reminders Placeholder -->
+        <div class="no-reminders" id="noReminders" style="display: none;">
+            <i class="fas fa-check-circle"></i>
+            <div class="no-reminders-text">No reminders at the moment!</div>
+            <p>All inventory items are at sufficient stock levels.</p>
+        </div>
+    </div>
+
+    <!-- Popup Alert for new warnings -->
+    <div class="popup-alert" id="popupAlert">
+        <button class="popup-close" id="closePopupBtn">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="popup-content">
+            <i class="fas fa-exclamation-circle popup-icon"></i>
+            <div>
+                <div class="popup-title">New Low Stock Alert</div>
+                <div class="popup-message" id="popupMessage">Portland Cement has reached the reorder level!</div>
+            </div>
+        </div>
+        <button class="btn btn-restock" id="popupActionBtn">
+            <i class="fas fa-plus"></i> Restock Now
+        </button>
+    </div>
+
+    <script src="reminders.js"></script>
+</body>
+</html>
