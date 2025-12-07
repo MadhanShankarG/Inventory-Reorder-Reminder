@@ -52,7 +52,6 @@ def register_routes(bp):
     @jwt_required
     def update_item(item_id):
         data = request.json or {}
-        # partial updates allowed
         update = {}
         for k in ['name', 'sku', 'quantity', 'threshold']:
             if k in data:
@@ -78,13 +77,18 @@ def register_routes(bp):
     @jwt_required
     def summary():
         total = items_col.count_documents({})
-        low_stock = items_col.count_documents({'quantity': {'$lte': 5}})
-        return jsonify({'success': True, 'total_items': total, 'low_stock': low_stock})
+        low_stock = items_col.count_documents({'$expr': {'$lte': ['$quantity', '$threshold']}})
+        out_of_stock = items_col.count_documents({'quantity': 0})
+        return jsonify({
+            'success': True,
+            'total_items': total,
+            'low_stock_count': low_stock,
+            'out_of_stock_count': out_of_stock
+        })
 
     @bp.route('/api/reminders', methods=['GET'])
     @jwt_required
     def reminders():
-        # returns items at or below threshold
         cursor = items_col.find({'$expr': {'$lte': ['$quantity', '$threshold']}})
         out = []
         for it in cursor:

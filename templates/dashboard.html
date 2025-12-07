@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Dashboard - Inventory</title>
+  <title>Dashboard - StockVision</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="stylesheet" href="/static/css/style.css">
 </head>
@@ -11,7 +11,7 @@
 <body>
   <header class="navbar">
     <div class="navbar-inner">
-      <div class="navbar-brand">Inventory</div>
+      <a href="/dashboard" class="navbar-brand">StockVision</a>
       <nav class="navbar-links">
         <a href="/dashboard" class="active">Dashboard</a>
         <a href="/inventory">Inventory</a>
@@ -30,12 +30,10 @@
       <article class="card stat-card">
         <div class="stat-label">Total Items</div>
         <div class="stat-value" id="total-items">0</div>
-        <!-- JS will populate this dynamically -->
       </article>
       <article class="card stat-card">
         <div class="stat-label">Low Stock Items</div>
         <div class="stat-value" id="low-stock-items">0</div>
-        <!-- JS will populate this dynamically -->
       </article>
     </section>
 
@@ -55,15 +53,15 @@
             </tr>
           </thead>
           <tbody id="recent-activity-body">
-            <!-- JS will populate this dynamically -->
             <tr class="placeholder-row">
-              <td colspan="4">No activity yet.</td>
+              <td colspan="4">Loading...</td>
             </tr>
           </tbody>
         </table>
       </div>
     </section>
   </main>
+  <script src="/static/js/dashboard.js"></script>
 </body>
 
 </html>

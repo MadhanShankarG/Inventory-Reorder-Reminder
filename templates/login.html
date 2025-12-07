@@ -3,8 +3,8 @@
 
 <head>
   <meta charset="utf-8" />
-  <link rel="stylesheet" href="static/css/style.css">
-  <title>Login</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+  <title>Login - StockVision</title>
 </head>
 
 <body>
@@ -19,7 +19,7 @@
 
   <script>
     document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault(); // IMPORTANT — prevents browser form submit (and the 405)
+      e.preventDefault();
       const f = e.target;
       const body = { username: f.username.value.trim(), password: f.password.value };
 

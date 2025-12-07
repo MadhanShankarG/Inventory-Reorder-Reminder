@@ -3,15 +3,15 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Add Item - Inventory Dashboard</title>
+  <title>Add Item - StockVision</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="static/css/style.css">
+  <link rel="stylesheet" href="/static/css/style.css">
 </head>
 
 <body>
   <header class="navbar">
     <div class="navbar-inner">
-      <div class="navbar-brand">Inventory</div>
+      <a href="/dashboard" class="navbar-brand">StockVision</a>
       <nav class="navbar-links">
         <a href="/dashboard">Dashboard</a>
         <a href="/inventory" class="active">Inventory</a>
@@ -27,34 +27,35 @@
     </section>
 
     <section class="card form-card">
-      <form class="form" action="#" method="post">
+      <form class="form" id="addItemForm">
         <div class="form-row">
           <div class="form-group">
             <label for="name">Name</label>
-            <input id="name" name="name" type="text" placeholder="e.g. Wireless Mouse">
+            <input id="name" name="name" type="text" placeholder="e.g. Wireless Mouse" required>
           </div>
           <div class="form-group">
             <label for="sku">SKU</label>
-            <input id="sku" name="sku" type="text" placeholder="e.g. WM-001">
+            <input id="sku" name="sku" type="text" placeholder="e.g. WM-001" required>
           </div>
         </div>
         <div class="form-row">
           <div class="form-group">
             <label for="quantity">Quantity</label>
-            <input id="quantity" name="quantity" type="number" min="0" placeholder="0">
+            <input id="quantity" name="quantity" type="number" min="0" placeholder="0" required>
           </div>
           <div class="form-group">
             <label for="threshold">Threshold</label>
-            <input id="threshold" name="threshold" type="number" min="0" placeholder="0">
+            <input id="threshold" name="threshold" type="number" min="0" placeholder="0" required>
           </div>
         </div>
         <div class="form-actions">
           <button type="submit" class="btn btn-primary">Save Item</button>
+          <a href="/inventory" class="btn btn-secondary">Cancel</a>
         </div>
       </form>
-      <!-- JS will handle form submission -->
     </section>
   </main>
+  <script src="/static/js/add-inventory.js"></script>
 </body>
 
 </html>
