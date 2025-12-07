@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Reminders - Inventory Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">Inventory</div>
+      <nav class="navbar-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/inventory">Inventory</a>
+        <a href="/reminders" class="active">Reminders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="page-header">
+      <h1>Low Stock Reminders</h1>
+      <p>Items that need your attention</p>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Low Stock Items</h2>
+        <p>Review and reorder before stock runs out</p>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>SKU</th>
+              <th>Quantity</th>
+              <th>Threshold</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="reminders-table-body">
+            <!-- JS will populate this dynamically -->
+            <tr class="placeholder-row">
+              <td colspan="5">No low-stock items right now.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>

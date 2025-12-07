@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Add Item - Inventory Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">Inventory</div>
+      <nav class="navbar-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/inventory" class="active">Inventory</a>
+        <a href="/reminders">Reminders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="page-header">
+      <h1>Add Inventory Item</h1>
+      <p>Create a new product record</p>
+    </section>
+
+    <section class="card form-card">
+      <form class="form" action="#" method="post">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Name</label>
+            <input id="name" name="name" type="text" placeholder="e.g. Wireless Mouse">
+          </div>
+          <div class="form-group">
+            <label for="sku">SKU</label>
+            <input id="sku" name="sku" type="text" placeholder="e.g. WM-001">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="quantity">Quantity</label>
+            <input id="quantity" name="quantity" type="number" min="0" placeholder="0">
+          </div>
+          <div class="form-group">
+            <label for="threshold">Threshold</label>
+            <input id="threshold" name="threshold" type="number" min="0" placeholder="0">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary">Save Item</button>
+        </div>
+      </form>
+      <!-- JS will handle form submission -->
+    </section>
+  </main>
+</body>
+
+</html>

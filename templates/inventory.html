@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Inventory - Inventory Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">Inventory</div>
+      <nav class="navbar-links">
+        <a href="/dashboard">Dashboard</a>
+        <a href="/inventory" class="active">Inventory</a>
+        <a href="/reminders">Reminders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="page-header page-header-row">
+      <div>
+        <h1>Inventory</h1>
+        <p>Manage all items and stock levels</p>
+      </div>
+      <a href="/add-inventory" class="btn btn-primary">Add Item</a>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>All Items</h2>
+        <p>Current products in your inventory</p>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>SKU</th>
+              <th>Quantity</th>
+              <th>Threshold</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="inventory-table-body">
+            <!-- JS will populate this dynamically -->
+            <tr class="placeholder-row">
+              <td colspan="5">No items yet. Use "Add Item" to create one.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>

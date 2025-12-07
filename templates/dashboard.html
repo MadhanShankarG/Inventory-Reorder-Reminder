@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Dashboard - Inventory</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+  <header class="navbar">
+    <div class="navbar-inner">
+      <div class="navbar-brand">Inventory</div>
+      <nav class="navbar-links">
+        <a href="/dashboard" class="active">Dashboard</a>
+        <a href="/inventory">Inventory</a>
+        <a href="/reminders">Reminders</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-content">
+    <section class="page-header">
+      <h1>Dashboard</h1>
+      <p>Overview of your inventory performance</p>
+    </section>
+
+    <section class="cards-grid">
+      <article class="card stat-card">
+        <div class="stat-label">Total Items</div>
+        <div class="stat-value" id="total-items">0</div>
+        <!-- JS will populate this dynamically -->
+      </article>
+      <article class="card stat-card">
+        <div class="stat-label">Low Stock Items</div>
+        <div class="stat-value" id="low-stock-items">0</div>
+        <!-- JS will populate this dynamically -->
+      </article>
+    </section>
+
+    <section class="card table-card">
+      <div class="table-header">
+        <h2>Recent Activity</h2>
+        <p>Latest changes to your inventory</p>
+      </div>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Action</th>
+              <th>Item</th>
+              <th>Details</th>
+            </tr>
+          </thead>
+          <tbody id="recent-activity-body">
+            <!-- JS will populate this dynamically -->
+            <tr class="placeholder-row">
+              <td colspan="4">No activity yet.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+</body>
+
+</html>
