@@ -16,33 +16,7 @@
     </form>
     <div id="loginError" style="color: red;"></div>
   </main>
-
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const f = e.target;
-      const body = { username: f.username.value.trim(), password: f.password.value };
-
-      try {
-        const res = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
-        });
-
-        const json = await res.json();
-        if (res.ok && json.success && json.token) {
-          sessionStorage.setItem('jwt', json.token);
-          window.location.href = '/dashboard';
-        } else {
-          document.getElementById('loginError').innerText = json.message || 'Login failed';
-        }
-      } catch (err) {
-        console.error(err);
-        document.getElementById('loginError').innerText = 'Network error';
-      }
-    });
-  </script>
+  <script src="/static/js/login.js"></script>
 </body>
 
 </html>

@@ -17,6 +17,7 @@
         <a href="/inventory">Inventory</a>
         <a href="/reminders" class="active">Reminders</a>
       </nav>
+      <button id="logout-btn" class="btn btn-primary">Logout</button>
     </div>
   </header>
 
@@ -42,16 +43,14 @@
               <th>Status</th>
             </tr>
           </thead>
-          <tbody id="reminders-table-body">
-            <tr class="placeholder-row">
-              <td colspan="5">Loading...</td>
-            </tr>
+          <tbody id="reminders-body">
           </tbody>
         </table>
       </div>
     </section>
   </main>
   <script src="/static/js/reminders.js"></script>
+  <script src="/static/js/logout.js"></script>
 </body>
 
 </html>

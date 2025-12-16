@@ -1,8 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const token = sessionStorage.getItem('jwt');
+    const token = localStorage.getItem('access_token');
     if (!token) {
         window.location.href = '/';
         return;
+    }
+
+    const role = sessionStorage.getItem('role');
+    if (role !== 'admin') {
+        const adminElems = document.querySelectorAll('.admin-only');
+        adminElems.forEach(el => el.remove());
     }
 
     await loadReminders();
@@ -10,39 +16,43 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadReminders() {
     try {
-        const token = sessionStorage.getItem('jwt');
+        const token = localStorage.getItem('access_token');
         if (!token) {
             window.location.href = '/';
             return;
         }
 
-        const response = await fetch('/api/reminders', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        const response = await fetch('/api/reminders', { headers });
 
         if (response.status === 401) {
-            sessionStorage.removeItem('jwt');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            sessionStorage.removeItem('role');
             window.location.href = '/';
             return;
         }
 
+        if (!response.ok) {
+            throw new Error('Failed to fetch reminders');
+        }
+
         const data = await response.json();
-        const tbody = document.getElementById('reminders-table-body');
+        const tbody = document.getElementById('reminders-body');
         tbody.innerHTML = '';
 
         if (data.success && data.reminders && data.reminders.length > 0) {
             data.reminders.forEach(item => {
                 const row = document.createElement('tr');
-                const status = item.quantity <= item.threshold ? 'Low Stock' : 'In Stock';
-                const statusClass = item.quantity <= item.threshold ? 'status-low' : 'status-ok';
                 row.innerHTML = `
-                    <td>${item.name || 'N/A'}</td>
-                    <td>${item.sku || 'N/A'}</td>
+                    <td>${item.name || '–'}</td>
+                    <td>${item.sku || '–'}</td>
                     <td>${item.quantity || 0}</td>
                     <td>${item.threshold || 0}</td>
-                    <td><span class="${statusClass}">${status}</span></td>
+                    <td><span class="status-low">Low Stock</span></td>
                 `;
                 tbody.appendChild(row);
             });
@@ -51,7 +61,7 @@ async function loadReminders() {
         }
     } catch (error) {
         console.error('Error loading reminders:', error);
-        const tbody = document.getElementById('reminders-table-body');
+        const tbody = document.getElementById('reminders-body');
         tbody.innerHTML = '<tr class="placeholder-row"><td colspan="5">Error loading reminders.</td></tr>';
     }
 }

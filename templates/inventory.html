@@ -17,6 +17,7 @@
         <a href="/inventory" class="active">Inventory</a>
         <a href="/reminders">Reminders</a>
       </nav>
+      <button id="logout-btn" class="btn btn-primary">Logout</button>
     </div>
   </header>
 
@@ -26,7 +27,9 @@
         <h1>Inventory</h1>
         <p>Manage all items and stock levels</p>
       </div>
-      <a href="/add-inventory" class="btn btn-primary">Add Item</a>
+      <div class="admin-only">
+        <a href="/add-inventory" class="btn btn-primary">Add Item</a>
+      </div>
     </section>
 
     <section class="card table-card">
@@ -55,6 +58,7 @@
     </section>
   </main>
   <script src="/static/js/inventory.js"></script>
+  <script src="/static/js/logout.js"></script>
 </body>
 
 </html>

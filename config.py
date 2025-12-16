@@ -9,3 +9,5 @@ class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret')
     JWT_SECRET = os.getenv('JWT_SECRET', 'dev-jwt-secret')
     JWT_ALGORITHM = 'HS256'
+    ACCESS_TOKEN_EXPIRES = 3600
+    REFRESH_TOKEN_EXPIRES = 604800

@@ -1,8 +1,14 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const token = sessionStorage.getItem('jwt');
+    const token = localStorage.getItem('access_token');
     if (!token) {
         window.location.href = '/';
         return;
+    }
+
+    const role = sessionStorage.getItem('role');
+    if (role !== 'admin') {
+        const adminElems = document.querySelectorAll('.admin-only');
+        adminElems.forEach(el => el.remove());
     }
 
     await loadDashboardData();
@@ -10,20 +16,22 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function loadDashboardData() {
     try {
-        const token = sessionStorage.getItem('jwt');
+        const token = localStorage.getItem('access_token');
         if (!token) {
             window.location.href = '/';
             return;
         }
 
-        const response = await fetch('/api/summary', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const headers = {
+            'Authorization': `Bearer ${token}`
+        };
+
+        const response = await fetch('/api/summary', { headers });
 
         if (response.status === 401) {
-            sessionStorage.removeItem('jwt');
+            localStorage.removeItem('access_token');
+            localStorage.removeItem('refresh_token');
+            sessionStorage.removeItem('role');
             window.location.href = '/';
             return;
         }
@@ -39,9 +47,15 @@ async function loadDashboardData() {
             if (data.out_of_stock_count !== undefined && document.getElementById('out-of-stock-items')) {
                 document.getElementById('out-of-stock-items').textContent = data.out_of_stock_count || 0;
             }
+            if (data.recent_activity && data.recent_activity.length > 0) {
+                renderRecentActivity(data.recent_activity);
+            } else {
+                const tbody = document.getElementById('recent-activity-body');
+                if (tbody) {
+                    tbody.innerHTML = '<tr class="placeholder-row"><td colspan="4">No activity yet.</td></tr>';
+                }
+            }
         }
-
-        await loadRecentActivity();
     } catch (error) {
         console.error('Error loading dashboard:', error);
         document.getElementById('total-items').textContent = '0';
@@ -49,39 +63,22 @@ async function loadDashboardData() {
     }
 }
 
-async function loadRecentActivity() {
-    try {
-        const token = sessionStorage.getItem('jwt');
-        if (!token) return;
-
-        const response = await fetch('/api/items?per_page=5', {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const tbody = document.getElementById('recent-activity-body');
-            tbody.innerHTML = '';
-
-            if (data.success && data.items && data.items.length > 0) {
-                data.items.forEach(item => {
-                    const row = document.createElement('tr');
-                    const date = item.created_at ? new Date(item.created_at).toLocaleDateString() : 'N/A';
-                    row.innerHTML = `
-                        <td>${date}</td>
-                        <td>Created</td>
-                        <td>${item.name || 'N/A'}</td>
-                        <td>Qty: ${item.quantity || 0}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
-            } else {
-                tbody.innerHTML = '<tr class="placeholder-row"><td colspan="4">No activity yet.</td></tr>';
-            }
-        }
-    } catch (error) {
-        console.error('Error loading recent activity:', error);
-    }
+function renderRecentActivity(entries) {
+    const tbody = document.getElementById('recent-activity-body');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+    entries.forEach(entry => {
+        const row = document.createElement('tr');
+        const time = entry.time ? new Date(entry.time).toLocaleString() : '–';
+        const action = entry.action || '–';
+        const itemName = entry.item_name || '–';
+        const details = entry.details ? JSON.stringify(entry.details) : '–';
+        row.innerHTML = `
+            <td>${time}</td>
+            <td>${action}</td>
+            <td>${itemName}</td>
+            <td>${details}</td>
+        `;
+        tbody.appendChild(row);
+    });
 }

@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
     }
 
+    const role = sessionStorage.getItem('role');
+    if (role !== 'admin') {
+        window.location.href = '/dashboard';
+        return;
+    }
+
     const form = document.querySelector('.form');
     if (!form) return;
 
@@ -60,6 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (response.status === 401) {
                 sessionStorage.removeItem('jwt');
+                sessionStorage.removeItem('role');
                 window.location.href = '/';
                 return;
             }
