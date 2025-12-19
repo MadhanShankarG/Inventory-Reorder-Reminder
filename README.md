@@ -1,4 +1,4 @@
-# Inventory Reorder Reminder
+# StockSync
 
 A Flask web application for managing inventory and tracking reorder reminders.
 
